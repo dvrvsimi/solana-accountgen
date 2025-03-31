@@ -186,4 +186,22 @@ impl AccountBuilder {
             rent_epoch: self.rent_epoch,
         })
     }
+
+    /// Creates an account at a PDA with the given seeds
+    pub fn create_pda(
+        program_id: &Pubkey,
+        seeds: &[&[u8]],
+        balance: u64,
+        data: impl BorshSerialize,
+    ) -> Result<(Pubkey, u8, Account), AccountGenError> {
+        let (pda, bump) = Pubkey::find_program_address(seeds, program_id);
+        
+        let account = Self::new()
+            .balance(balance)
+            .owner(*program_id)
+            .data(data)?
+            .try_build()?;
+            
+        Ok((pda, bump, account))
+    }
 } 

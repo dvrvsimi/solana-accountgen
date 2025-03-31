@@ -41,5 +41,17 @@ pub trait BanksClientExt {
     ) -> Result<(), Box<dyn std::error::Error>>;
 }
 
+impl BanksClientExt for BanksClient {
+    fn set_account_with_builder(
+        &mut self,
+        pubkey: Pubkey,
+        builder: AccountBuilder,
+    ) -> Result<(), Box<dyn std::error::Error>> {
+        let account = builder.try_build()?;
+        self.set_account(&pubkey, &account);
+        Ok(())
+    }
+}
+
 // Note: This implementation is simplified and would need to be expanded
 // in a real implementation to properly work with the async nature of BanksClient 

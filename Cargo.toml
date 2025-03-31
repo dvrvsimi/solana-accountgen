@@ -10,7 +10,7 @@ keywords = ["solana", "blockchain", "testing"]
 categories = ["development-tools::testing"]
 
 [lib]
-name = "solana-accountgen"
+name = "solana_accountgen"
 path = "src/lib.rs"
 
 [[bin]]
@@ -27,10 +27,12 @@ solana-program = "2.2.1"
 solana-sdk = "2.2.2"
 solana-program-test = "2.2.6"
 borsh = "1.5.7"
-thiserror = "1.0"
+thiserror = "2.0.1"
+serde = { version = "1.0", features = ["derive"] }
+bincode = "2.0.1"
 
 # Optional dependencies
 clap = { version = "4.3", features = ["derive"], optional = true }
 
 [dev-dependencies]
-solana-program-test = "1.16"
+solana-program-test = "2.2.6"

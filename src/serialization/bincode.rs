@@ -40,7 +40,8 @@ use std::io;
 pub fn deserialize_account_data<T: for<'de> Deserialize<'de>>(
     account: &Account,
 ) -> Result<T, AccountGenError> {
-    bincode::deserialize(&account.data)
+    bincode::decode_from_slice(&account.data, bincode::config::standard())
+        .map(|(data, _)| data)
         .map_err(|e| AccountGenError::DeserializationError(io::Error::new(io::ErrorKind::InvalidData, e)))
 }
 
@@ -61,6 +62,6 @@ pub fn deserialize_account_data<T: for<'de> Deserialize<'de>>(
 /// let serialized = serialize_data(&my_data).unwrap();
 /// ```
 pub fn serialize_data<T: Serialize>(data: &T) -> Result<Vec<u8>, AccountGenError> {
-    bincode::serialize(data)
+    bincode::encode_to_vec(data, bincode::config::standard())
         .map_err(|e| AccountGenError::SerializationError(io::Error::new(io::ErrorKind::InvalidData, e)))
 } 
