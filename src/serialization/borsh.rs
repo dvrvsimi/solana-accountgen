@@ -1,0 +1,60 @@
+//! Borsh serialization support.
+//!
+//! This module provides utilities for working with Borsh serialization,
+//! which is the primary serialization format used by Solana programs.
+
+use crate::error::AccountGenError;
+use borsh::{BorshDeserialize, BorshSerialize};
+use solana_sdk::account::Account;
+
+/// Deserializes account data using Borsh.
+///
+/// # Example
+///
+/// ```
+/// use solana_accountgen::serialization::borsh::deserialize_account_data;
+/// use borsh::{BorshSerialize, BorshDeserialize};
+/// use solana_sdk::account::Account;
+/// use solana_program::pubkey::Pubkey;
+///
+/// #[derive(BorshSerialize, BorshDeserialize)]
+/// struct MyData {
+///     value: u64,
+/// }
+///
+/// let account = Account {
+///     lamports: 100,
+///     data: MyData { value: 42 }.try_to_vec().unwrap(),
+///     owner: Pubkey::new_unique(),
+///     executable: false,
+///     rent_epoch: 0,
+/// };
+///
+/// let my_data: MyData = deserialize_account_data(&account).unwrap();
+/// assert_eq!(my_data.value, 42);
+/// ```
+pub fn deserialize_account_data<T: BorshDeserialize>(
+    account: &Account,
+) -> Result<T, AccountGenError> {
+    T::try_from_slice(&account.data).map_err(AccountGenError::DeserializationError)
+}
+
+/// Serializes data using Borsh.
+///
+/// # Example
+///
+/// ```
+/// use solana_accountgen::serialization::borsh::serialize_data;
+/// use borsh::{BorshSerialize, BorshDeserialize};
+///
+/// #[derive(BorshSerialize, BorshDeserialize)]
+/// struct MyData {
+///     value: u64,
+/// }
+///
+/// let my_data = MyData { value: 42 };
+/// let serialized = serialize_data(&my_data).unwrap();
+/// ```
+pub fn serialize_data<T: BorshSerialize>(data: &T) -> Result<Vec<u8>, AccountGenError> {
+    data.try_to_vec().map_err(AccountGenError::SerializationError)
+} 
