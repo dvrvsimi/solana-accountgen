@@ -1,7 +1,7 @@
-use crate::error::AccountGenError;
 use borsh::BorshSerialize;
 use solana_program::pubkey::Pubkey;
 use solana_sdk::account::Account;
+use crate::error::AccountGenError;
 
 /// A builder for creating mock Solana accounts for testing purposes.
 ///

@@ -8,6 +8,9 @@ use clap::{Parser, Subcommand};
 use solana_accountgen::AccountBuilder;
 use solana_program::pubkey::Pubkey;
 use std::str::FromStr;
+use base64;
+use serde_json;
+use hex;
 
 /// CLI for generating Solana test accounts
 #[derive(Parser)]
@@ -37,6 +40,10 @@ enum Commands {
         /// Output format (json or base64)
         #[arg(short, long, default_value = "json")]
         format: String,
+        
+        /// Account data as a hex string (e.g., "0102ABCD")
+        #[arg(short, long)]
+        data: Option<String>,
     },
 }
 
@@ -44,22 +51,38 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let cli = Cli::parse();
 
     match cli.command {
-        Commands::Generate { balance, owner, executable, format } => {
+        Commands::Generate { balance, owner, executable, format, data } => {
             let owner_pubkey = Pubkey::from_str(&owner)?;
             
-            let account = AccountBuilder::new()
+            // Start building the account
+            let mut builder = AccountBuilder::new()
                 .balance(balance)
                 .owner(owner_pubkey)
-                .executable(executable)
-                .build();
+                .executable(executable);
+            
+            // Add data if provided
+            if let Some(hex_data) = data {
+                // Parse hex string to bytes
+                let data_bytes = hex::decode(&hex_data)?;
+                builder = builder.data_raw(data_bytes);
+            }
+            
+            // Build the account
+            let account = builder.build();
             
             match format.as_str() {
                 "json" => {
                     println!("{}", serde_json::to_string_pretty(&account)?);
                 }
                 "base64" => {
-                    // Simplified for example purposes
-                    println!("Account data would be base64 encoded here");
+                    // Serialize using serde_json instead of bincode
+                    let json_bytes = serde_json::to_vec(&account)?;
+                    
+                    // Encode as base64
+                    let base64_string = base64::encode(&json_bytes);
+                    
+                    // Print the result
+                    println!("{}", base64_string);
                 }
                 _ => {
                     eprintln!("Unsupported format: {}", format);

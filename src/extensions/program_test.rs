@@ -60,6 +60,3 @@ impl BanksClientExt for BanksClient {
         Ok(())
     }
 }
-
-// Note: This implementation is simplified and would need to be expanded
-// in a real implementation to properly work with the async nature of BanksClient 

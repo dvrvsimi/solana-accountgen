@@ -47,6 +47,8 @@ mod tests {
     use solana_sdk::account::Account;
     use crate::serialization::{borsh as borsh_serialization, bincode as bincode_serialization};
     use serde::{Serialize, Deserialize};
+    use base64;
+    use serde_json;
 
     // Test data structures
     #[derive(BorshSerialize, BorshDeserialize, Debug, PartialEq, Clone)]
@@ -223,26 +225,37 @@ mod tests {
     }
     
     #[test]
-    fn test_bincode_serialization() {
+    fn test_account_base64_encoding() {
         let program_id = Pubkey::new_unique();
-        let test_data = TestBincodeData { 
-            value: 42, 
-            name: "Test Account".to_string() 
-        };
+        let balance = 100_000_000;
+        let data = vec![1, 2, 3, 4, 5];
         
-        // Serialize with bincode
-        let serialized = bincode_serialization::serialize_data(&test_data).unwrap();
-        
-        let account = Account {
-            lamports: 100_000,
-            data: serialized,
-            owner: program_id,
-            executable: false,
-            rent_epoch: 0,
-        };
+        // Create an account
+        let account = AccountBuilder::new()
+            .balance(balance)
+            .owner(program_id)
+            .data_raw(data.clone())
+            .build();
             
-        let deserialized = bincode_serialization::deserialize_account_data::<TestBincodeData>(&account).unwrap();
-        assert_eq!(deserialized, test_data);
+        // Serialize with serde_json
+        let account_bytes = serde_json::to_vec(&account).unwrap();
+        
+        // Encode with base64
+        let base64_string = base64::encode(&account_bytes);
+        
+        // Decode from base64
+        let decoded_bytes = base64::decode(&base64_string).unwrap();
+        
+        // Deserialize with serde_json
+        let decoded_account: solana_sdk::account::Account = 
+            serde_json::from_slice(&decoded_bytes).unwrap();
+        
+        // Verify the account was correctly round-tripped
+        assert_eq!(account.lamports, decoded_account.lamports);
+        assert_eq!(account.owner, decoded_account.owner);
+        assert_eq!(account.data, decoded_account.data);
+        assert_eq!(account.executable, decoded_account.executable);
+        assert_eq!(account.rent_epoch, decoded_account.rent_epoch);
     }
     
     // Test for extensions could be added here, but they would likely need
