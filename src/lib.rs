@@ -49,16 +49,38 @@ mod tests {
     use serde::{Serialize, Deserialize};
 
     // Test data structures
-    #[derive(BorshSerialize, BorshDeserialize, Debug, PartialEq)]
+    #[derive(BorshSerialize, BorshDeserialize, Debug, PartialEq, Clone)]
     struct TestBorshData {
         value: u64,
         name: String,
     }
 
-    #[derive(Serialize, Deserialize, Debug, PartialEq)]
+    #[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
     struct TestBincodeData {
         value: u64,
         name: String,
+    }
+
+    // Implement Encode and Decode for TestBincodeData
+    impl bincode::Encode for TestBincodeData {
+        fn encode<E: bincode::enc::Encoder>(
+            &self,
+            encoder: &mut E,
+        ) -> Result<(), bincode::error::EncodeError> {
+            bincode::Encode::encode(&self.value, encoder)?;
+            bincode::Encode::encode(&self.name, encoder)?;
+            Ok(())
+        }
+    }
+
+    impl bincode::Decode<()> for TestBincodeData {
+        fn decode<D: bincode::de::Decoder>(
+            decoder: &mut D,
+        ) -> Result<Self, bincode::error::DecodeError> {
+            let value = bincode::Decode::decode(decoder)?;
+            let name = bincode::Decode::decode(decoder)?;
+            Ok(TestBincodeData { value, name })
+        }
     }
 
     #[test]

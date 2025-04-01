@@ -1,8 +1,7 @@
 use crate::error::AccountGenError;
-use borsh::{BorshDeserialize, BorshSerialize};
+use borsh::BorshSerialize;
 use solana_program::pubkey::Pubkey;
 use solana_sdk::account::Account;
-use std::convert::TryFrom;
 
 /// A builder for creating mock Solana accounts for testing purposes.
 ///
@@ -131,7 +130,7 @@ impl AccountBuilder {
     ///
     /// Returns an error if serialization fails.
     pub fn data<T: BorshSerialize>(mut self, data: T) -> Result<Self, AccountGenError> {
-        self.data = data.try_to_vec().map_err(AccountGenError::SerializationError)?;
+        self.data = borsh::to_vec(&data).map_err(AccountGenError::SerializationError)?;
         Ok(self)
     }
 

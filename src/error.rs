@@ -9,9 +9,13 @@ pub enum AccountGenError {
 
     /// An error occurred during serialization.
     #[error("Failed to serialize data: {0}")]
-    SerializationError(#[from] std::io::Error),
+    SerializationError(std::io::Error),
 
     /// An error occurred during deserialization.
     #[error("Failed to deserialize data: {0}")]
-    DeserializationError(#[from] borsh::maybestd::io::Error),
+    DeserializationError(std::io::Error),
+    
+    /// A generic IO error.
+    #[error("IO error: {0}")]
+    IoError(#[from] std::io::Error),
 } 

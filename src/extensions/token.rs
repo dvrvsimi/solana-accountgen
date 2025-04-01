@@ -6,7 +6,6 @@
 use crate::{AccountBuilder, AccountGenError};
 use borsh::{BorshSerialize, BorshDeserialize};
 use solana_program::pubkey::Pubkey;
-use std::convert::TryFrom;
 
 #[derive(BorshSerialize, BorshDeserialize)]
 struct TokenAccount {

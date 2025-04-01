@@ -1,9 +1,8 @@
 use borsh::{BorshDeserialize, BorshSerialize};
-use solana_accountgen::{AccountBuilder, extensions::program_test::ProgramTestExt};
-use solana_program::{pubkey::Pubkey, system_program};
+use solana_accountgen::AccountBuilder;
+use solana_program::pubkey::Pubkey;
 use solana_program_test::ProgramTest;
 use solana_sdk::signature::Signer;
-use solana_sdk::signer::keypair::Keypair;
 
 #[derive(BorshSerialize, BorshDeserialize, Debug)]
 struct CounterData {
@@ -12,37 +11,29 @@ struct CounterData {
 
 #[tokio::main]
 async fn main() {
-    // Create a program ID and a program test environment
+    // Create a program test environment
     let program_id = Pubkey::new_unique();
     let mut program_test = ProgramTest::new(
-        "counter_program", // This would be your program name
+        "my_program",
         program_id,
-        None, // processor
+        None,
     );
 
-    // Create a counter account
-    let counter_keypair = Keypair::new();
-    let counter_pubkey = counter_keypair.pubkey();
-    
-    let counter_data = CounterData { count: 0 };
-    
-    // Add the counter account to the test environment
-    program_test.add_account_with_builder(
-        counter_pubkey,
-        AccountBuilder::new()
-            .balance(1_000_000)
-            .owner(program_id)
-            .data(counter_data)
-            .unwrap(),
-    ).unwrap();
+    // Create an account using AccountBuilder
+    let account_pubkey = Pubkey::new_unique();
+    let account_builder = AccountBuilder::new()
+        .balance(1_000_000)
+        .owner(program_id);
+
+    // Add the account to the test environment
+    program_test.add_account(
+        account_pubkey,
+        account_builder.build(),
+    );
 
     // Start the test environment
-    let (mut banks_client, payer, recent_blockhash) = program_test.start().await;
-    
-    println!("Test environment started!");
-    println!("Counter account: {}", counter_pubkey);
-    println!("Payer: {}", payer.pubkey());
-    
-    // In a real test, you would now interact with your program
-    // using the banks_client
+    let (_banks_client, payer, _recent_blockhash) = program_test.start().await;
+
+    // Now you can use the test environment to test your program
+    println!("Test environment started with payer: {}", payer.pubkey());
 } 

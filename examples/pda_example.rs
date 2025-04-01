@@ -1,6 +1,6 @@
 use borsh::{BorshDeserialize, BorshSerialize};
 use solana_accountgen::AccountBuilder;
-use solana_program::{pubkey::Pubkey, system_program};
+use solana_program::pubkey::Pubkey;
 
 #[derive(BorshSerialize, BorshDeserialize, Debug)]
 struct GameState {
