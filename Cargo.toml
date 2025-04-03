@@ -32,8 +32,9 @@ serde = { version = "1.0", features = ["derive"] }
 base64 = "0.13.0"
 hex = "0.4.3"
 serde_json = "1.0"
+sha2 = "0.10.8"
 
-# Optional dependencies
+
 clap = { version = "4.3", features = ["derive"], optional = true }
 
 [dev-dependencies]

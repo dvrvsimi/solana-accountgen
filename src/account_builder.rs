@@ -2,6 +2,7 @@ use borsh::BorshSerialize;
 use solana_program::pubkey::Pubkey;
 use solana_sdk::account::Account;
 use crate::error::AccountGenError;
+use base64;
 
 /// A builder for creating mock Solana accounts for testing purposes.
 ///
@@ -150,6 +151,30 @@ impl AccountBuilder {
     pub fn pubkey(mut self, pubkey: Pubkey) -> Self {
         self.pubkey = Some(pubkey);
         self
+    }
+
+    /// Sets the account data using base64-encoded data.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use solana_accountgen::AccountBuilder;
+    ///
+    /// let base64_data = "SGVsbG8gV29ybGQ="; // "Hello World"
+    /// let builder = AccountBuilder::new()
+    ///     .data_base64(base64_data)
+    ///     .unwrap();
+    /// ```
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if base64 decoding fails.
+    pub fn data_base64(mut self, base64_data: &str) -> Result<Self, AccountGenError> {
+        self.data = base64::decode(base64_data)
+            .map_err(|e| AccountGenError::SerializationError(
+                std::io::Error::new(std::io::ErrorKind::InvalidData, e)
+            ))?;
+        Ok(self)
     }
 
     /// Builds the account with the configured properties.

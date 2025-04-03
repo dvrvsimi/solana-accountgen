@@ -8,6 +8,7 @@
 //! - Serialize account data using Borsh (with JSON support for the bincode module)
 //! - Support for creating PDAs (Program Derived Addresses)
 //! - Integration with solana-program-test for end-to-end testing
+//! - Support for Anchor programs with discriminator handling
 //! 
 //! ## Example
 //! 
@@ -26,6 +27,49 @@
 //!     .data(MyData { value: 42 })
 //!     .unwrap()
 //!     .build();
+//! ```
+//!
+//! ## Anchor Program Testing
+//!
+//! solana-accountgen provides special support for testing Anchor programs:
+//!
+//! ```rust,no_run
+//! use solana_accountgen::extensions::anchor::{create_anchor_account, create_anchor_instruction};
+//! use solana_program::pubkey::Pubkey;
+//! use borsh::{BorshSerialize, BorshDeserialize};
+//! use solana_sdk::instruction::AccountMeta;
+//!
+//! #[derive(BorshSerialize, BorshDeserialize)]
+//! struct GameState { 
+//!     player: Pubkey,
+//!     score: u64,
+//! }
+//!
+//! // Create an account with Anchor's discriminator
+//! let program_id = Pubkey::new_unique();
+//! let player = Pubkey::new_unique();
+//! let game_state = GameState { 
+//!     player,
+//!     score: 100,
+//! };
+//!
+//! let account = create_anchor_account(
+//!     "game",  // Account type name in Anchor program
+//!     program_id,
+//!     game_state,
+//!     100_000, // lamports
+//! ).unwrap();
+//!
+//! // Create an instruction with Anchor's method discriminator
+//! let ix = create_anchor_instruction(
+//!     program_id,
+//!     "update_score",  // Method name in Anchor program
+//!     vec![
+//!         AccountMeta::new(Pubkey::new_unique(), false),
+//!         AccountMeta::new_readonly(player, true),
+//!     ],
+//!     42u64, // Instruction data
+//! ).unwrap();
 //! ```
 
 mod account_builder;
