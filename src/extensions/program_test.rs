@@ -2,10 +2,14 @@
 //!
 //! This module provides utilities for integrating AccountBuilder with
 //! the solana-program-test framework.
+//!
+//! Note: Accounts should be added to ProgramTest before starting the test.
+//! Once the test has started, adding new accounts is not directly supported.
 
 use crate::AccountBuilder;
 use solana_program::pubkey::Pubkey;
-use solana_program_test::{BanksClient, ProgramTest};
+use solana_program_test::ProgramTest;
+use crate::account_map::AccountMap;
 
 /// Extension trait for ProgramTest to add accounts using AccountBuilder.
 pub trait ProgramTestExt {
@@ -15,6 +19,18 @@ pub trait ProgramTestExt {
         pubkey: Pubkey,
         builder: AccountBuilder,
     ) -> Result<&mut Self, crate::error::AccountGenError>;
+    
+    /// Adds multiple accounts created with AccountBuilder to the test environment.
+    fn add_accounts(
+        &mut self,
+        accounts: Vec<(Pubkey, AccountBuilder)>,
+    ) -> Result<&mut Self, crate::error::AccountGenError>;
+
+    /// Adds all accounts from an AccountMap to the test environment.
+    fn add_account_map(
+        &mut self,
+        account_map: AccountMap,
+    ) -> &mut Self;
 }
 
 impl ProgramTestExt for ProgramTest {
@@ -27,36 +43,25 @@ impl ProgramTestExt for ProgramTest {
         self.add_account(pubkey, account);
         Ok(self)
     }
-}
-
-/// Extension trait for BanksClient to add accounts using AccountBuilder.
-pub trait BanksClientExt {
-    /// Sets an account created with AccountBuilder in the test environment.
-    /// This is done by creating and processing a transaction that creates the account.
-    #[allow(async_fn_in_trait)]
-    async fn set_account_with_builder(
+    
+    fn add_accounts(
         &mut self,
-        _pubkey: Pubkey,
-        builder: AccountBuilder,
-    ) -> Result<(), Box<dyn std::error::Error>>;
-}
+        accounts: Vec<(Pubkey, AccountBuilder)>,
+    ) -> Result<&mut Self, crate::error::AccountGenError> {
+        for (pubkey, builder) in accounts {
+            self.add_account_with_builder(pubkey, builder)?;
+        }
+        Ok(self)
+    }
 
-impl BanksClientExt for BanksClient {
-    async fn set_account_with_builder(
+    /// Adds all accounts from an AccountMap to the test environment.
+    fn add_account_map(
         &mut self,
-        _pubkey: Pubkey,
-        builder: AccountBuilder,
-    ) -> Result<(), Box<dyn std::error::Error>> {
-        let _account = builder.try_build()?;
-        
-        // In a real implementation, you would:
-        // 1. Create a system instruction to create the account
-        // 2. Create a transaction with that instruction
-        // 3. Process the transaction
-        
-        // For now, we'll just return Ok as a placeholder
-        // In a real implementation, you would need to fund the payer account first
-        // and handle other complexities
-        Ok(())
+        account_map: AccountMap,
+    ) -> &mut Self {
+        for (pubkey, account) in account_map {
+            self.add_account(pubkey, account);
+        }
+        self
     }
 }

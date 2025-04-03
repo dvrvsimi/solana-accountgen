@@ -9,6 +9,7 @@ use crate::error::AccountGenError;
 /// Solana accounts with custom properties.
 #[derive(Debug, Default)]
 pub struct AccountBuilder {
+    pubkey: Option<Pubkey>,
     lamports: u64,
     owner: Option<Pubkey>,
     executable: bool,
@@ -134,6 +135,23 @@ impl AccountBuilder {
         Ok(self)
     }
 
+    /// Sets the account's pubkey.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use solana_accountgen::AccountBuilder;
+    /// use solana_program::pubkey::Pubkey;
+    ///
+    /// let pubkey = Pubkey::new_unique();
+    /// let builder = AccountBuilder::new()
+    ///     .pubkey(pubkey);
+    /// ```
+    pub fn pubkey(mut self, pubkey: Pubkey) -> Self {
+        self.pubkey = Some(pubkey);
+        self
+    }
+
     /// Builds the account with the configured properties.
     ///
     /// # Example
@@ -162,6 +180,73 @@ impl AccountBuilder {
         }
     }
 
+    /// Builds the account and returns it with its pubkey.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use solana_accountgen::AccountBuilder;
+    /// use solana_program::pubkey::Pubkey;
+    ///
+    /// let pubkey = Pubkey::new_unique();
+    /// let program_id = Pubkey::new_unique();
+    /// let (account_pubkey, account) = AccountBuilder::new()
+    ///     .pubkey(pubkey)
+    ///     .balance(100_000_000)
+    ///     .owner(program_id)
+    ///     .build_with_pubkey();
+    /// ```
+    ///
+    /// # Panics
+    ///
+    /// Panics if the owner or pubkey has not been set.
+    pub fn build_with_pubkey(self) -> (Pubkey, Account) {
+        let pubkey = self.pubkey.expect("Account pubkey must be set");
+        let account = self.build();
+        (pubkey, account)
+    }
+
+    /// Attempts to build the account and return it with its pubkey.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use solana_accountgen::AccountBuilder;
+    /// use solana_program::pubkey::Pubkey;
+    ///
+    /// let pubkey = Pubkey::new_unique();
+    /// let program_id = Pubkey::new_unique();
+    /// let result = AccountBuilder::new()
+    ///     .pubkey(pubkey)
+    ///     .balance(100_000_000)
+    ///     .owner(program_id)
+    ///     .try_build_with_pubkey();
+    /// assert!(result.is_ok());
+    /// ```
+    pub fn try_build_with_pubkey(self) -> Result<(Pubkey, Account), AccountGenError> {
+        let pubkey = self.pubkey.ok_or(AccountGenError::MissingPubkey)?;
+        let account = self.try_build()?;
+        Ok((pubkey, account))
+    }
+
+    /// Creates an account at a PDA with the given seeds
+    pub fn create_pda(
+        program_id: &Pubkey,
+        seeds: &[&[u8]],
+        balance: u64,
+        data: impl BorshSerialize,
+    ) -> Result<(Pubkey, u8, Account), AccountGenError> {
+        let (pda, bump) = Pubkey::find_program_address(seeds, program_id);
+        
+        let account = Self::new()
+            .balance(balance)
+            .owner(*program_id)
+            .data(data)?
+            .try_build()?;
+            
+        Ok((pda, bump, account))
+    }
+
     /// Attempts to build the account, returning an error if required fields are missing.
     ///
     /// # Example
@@ -186,21 +271,24 @@ impl AccountBuilder {
         })
     }
 
-    /// Creates an account at a PDA with the given seeds
-    pub fn create_pda(
-        program_id: &Pubkey,
-        seeds: &[&[u8]],
-        balance: u64,
-        data: impl BorshSerialize,
-    ) -> Result<(Pubkey, u8, Account), AccountGenError> {
-        let (pda, bump) = Pubkey::find_program_address(seeds, program_id);
-        
-        let account = Self::new()
-            .balance(balance)
-            .owner(*program_id)
-            .data(data)?
-            .try_build()?;
-            
-        Ok((pda, bump, account))
+    /// Creates an account with the given pubkey.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use solana_accountgen::AccountBuilder;
+    /// use solana_program::pubkey::Pubkey;
+    ///
+    /// let pubkey = Pubkey::new_unique();
+    /// let program_id = Pubkey::new_unique();
+    /// let (account_pubkey, account) = AccountBuilder::new()
+    ///     .balance(100_000)
+    ///     .owner(program_id)
+    ///     .create_with_pubkey(pubkey)
+    ///     .unwrap();
+    /// ```
+    pub fn create_with_pubkey(self, pubkey: Pubkey) -> Result<(Pubkey, Account), AccountGenError> {
+        let account = self.try_build()?;
+        Ok((pubkey, account))
     }
 } 

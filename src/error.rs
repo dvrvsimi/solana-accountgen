@@ -7,6 +7,10 @@ pub enum AccountGenError {
     #[error("Account owner must be set")]
     MissingOwner,
 
+    /// The account pubkey was not set.
+    #[error("Account pubkey must be set")]
+    MissingPubkey,
+
     /// An error occurred during serialization.
     #[error("Failed to serialize data: {0}")]
     SerializationError(std::io::Error),

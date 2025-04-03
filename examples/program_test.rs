@@ -19,17 +19,16 @@ async fn main() {
         None,
     );
 
-    // Create an account using AccountBuilder
+    // Create an account using AccountBuilder with pubkey
     let account_pubkey = Pubkey::new_unique();
-    let account_builder = AccountBuilder::new()
+    let (_, account) = AccountBuilder::new()
+        .pubkey(account_pubkey)
         .balance(1_000_000)
-        .owner(program_id);
+        .owner(program_id)
+        .build_with_pubkey();
 
     // Add the account to the test environment
-    program_test.add_account(
-        account_pubkey,
-        account_builder.build(),
-    );
+    program_test.add_account(account_pubkey, account);
 
     // Start the test environment
     let (_banks_client, payer, _recent_blockhash) = program_test.start().await;
