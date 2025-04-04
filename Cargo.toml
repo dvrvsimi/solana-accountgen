@@ -6,8 +6,11 @@ description = "A utility crate for generating mock Solana accounts in tests"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/dvrvsimi/solana-accountgen"
 readme = "README.md"
-keywords = ["solana", "blockchain", "testing"]
-categories = ["development-tools::testing"]
+keywords = ["solana", "blockchain", "testing", "anchor", "accounts"]
+categories = ["development-tools::testing", "blockchain"]
+authors = ["sarugami <daraakojede01@gmail.com>"]
+documentation = "https://docs.rs/solana-accountgen"
+homepage = "https://github.com/dvrvsimi/solana-accountgen"
 
 [lib]
 name = "solana_accountgen"

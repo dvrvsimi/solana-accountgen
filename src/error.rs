@@ -22,4 +22,20 @@ pub enum AccountGenError {
     /// A generic IO error.
     #[error("IO error: {0}")]
     IoError(#[from] std::io::Error),
+
+    /// Invalid account data format.
+    #[error("Invalid account data format: {0}")]
+    InvalidDataFormat(String),
+
+    /// Insufficient balance for rent exemption.
+    #[error("Insufficient balance for rent exemption: required {required} but got {actual}")]
+    InsufficientBalance { required: u64, actual: u64 },
+
+    /// Program file not found.
+    #[error("Program file not found: {0}")]
+    ProgramFileNotFound(String),
+
+    /// Invalid Anchor discriminator.
+    #[error("Invalid Anchor discriminator: {0}")]
+    InvalidAnchorDiscriminator(String),
 } 

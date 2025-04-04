@@ -3,12 +3,13 @@ use solana_program::pubkey::Pubkey;
 use solana_sdk::account::Account;
 use crate::error::AccountGenError;
 use base64;
+use serde::{Serialize, Deserialize};
 
 /// A builder for creating mock Solana accounts for testing purposes.
 ///
 /// This struct provides a fluent API for configuring and building
 /// Solana accounts with custom properties.
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct AccountBuilder {
     pubkey: Option<Pubkey>,
     lamports: u64,

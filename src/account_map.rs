@@ -6,7 +6,7 @@ use std::collections::HashMap;
 ///
 /// This struct provides a convenient way to manage multiple accounts
 /// and their associated pubkeys.
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct AccountMap {
     accounts: HashMap<Pubkey, Account>,
 }
@@ -64,6 +64,97 @@ impl AccountMap {
     pub fn is_empty(&self) -> bool {
         self.accounts.is_empty()
     }
+
+    /// Creates a new AccountMap from an iterator of (Pubkey, Account) pairs.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use solana_accountgen::AccountMap;
+    /// use solana_program::pubkey::Pubkey;
+    /// use solana_sdk::account::Account;
+    ///
+    /// let accounts = vec![
+    ///     (Pubkey::new_unique(), Account::default()),
+    ///     (Pubkey::new_unique(), Account::default()),
+    /// ];
+    ///
+    /// let account_map = AccountMap::from_iter(accounts);
+    /// assert_eq!(account_map.len(), 2);
+    /// ```
+    pub fn from_iter<I>(iter: I) -> Self
+    where
+        I: IntoIterator<Item = (Pubkey, Account)>,
+    {
+        let mut map = Self::new();
+        for (pubkey, account) in iter {
+            map.set_account(pubkey, account);
+        }
+        map
+    }
+
+    /// Merges another AccountMap into this one.
+    ///
+    /// If both maps contain the same pubkey, the account from `other` will overwrite
+    /// the existing account.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use solana_accountgen::AccountMap;
+    /// use solana_program::pubkey::Pubkey;
+    /// use solana_sdk::account::Account;
+    ///
+    /// let mut map1 = AccountMap::new();
+    /// let pubkey = Pubkey::new_unique();
+    /// map1.set_account(pubkey, Account::default());
+    ///
+    /// let mut map2 = AccountMap::new();
+    /// map2.set_account(Pubkey::new_unique(), Account::default());
+    ///
+    /// map1.merge(map2);
+    /// assert_eq!(map1.len(), 2);
+    /// ```
+    pub fn merge(&mut self, other: AccountMap) {
+        for (pubkey, account) in other {
+            self.set_account(pubkey, account);
+        }
+    }
+
+    /// Returns a new AccountMap containing only the accounts that satisfy the predicate.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use solana_accountgen::AccountMap;
+    /// use solana_program::pubkey::Pubkey;
+    /// use solana_sdk::account::Account;
+    ///
+    /// let mut map = AccountMap::new();
+    /// let pubkey1 = Pubkey::new_unique();
+    /// let mut account1 = Account::default();
+    /// account1.lamports = 100;
+    /// map.set_account(pubkey1, account1);
+    ///
+    /// let pubkey2 = Pubkey::new_unique();
+    /// let mut account2 = Account::default();
+    /// account2.lamports = 200;
+    /// map.set_account(pubkey2, account2);
+    ///
+    /// let filtered = map.filter(|_, account| account.lamports > 150);
+    /// assert_eq!(filtered.len(), 1);
+    /// ```
+    pub fn filter<F>(&self, mut predicate: F) -> Self
+    where
+        F: FnMut(&Pubkey, &Account) -> bool,
+    {
+        let accounts = self.accounts.iter()
+            .filter(|(pubkey, account)| predicate(pubkey, account))
+            .map(|(pubkey, account)| (*pubkey, account.clone()))
+            .collect::<HashMap<_, _>>();
+        
+        Self { accounts }
+    }
 }
 
 impl IntoIterator for AccountMap {
@@ -72,5 +163,15 @@ impl IntoIterator for AccountMap {
 
     fn into_iter(self) -> Self::IntoIter {
         self.accounts.into_iter()
+    }
+}
+
+impl FromIterator<(Pubkey, Account)> for AccountMap {
+    fn from_iter<I: IntoIterator<Item = (Pubkey, Account)>>(iter: I) -> Self {
+        let mut map = Self::new();
+        for (pubkey, account) in iter {
+            map.set_account(pubkey, account);
+        }
+        map
     }
 } 
