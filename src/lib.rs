@@ -91,7 +91,8 @@ use solana_program::pubkey::Pubkey;
 mod tests {
     use super::*;
     use borsh::{BorshSerialize, BorshDeserialize};
-    use solana_program::pubkey::Pubkey;
+    use solana_program::{pubkey::Pubkey, system_program};
+    use solana_sdk::rent::Rent;
     use crate::serialization::borsh as borsh_serialization;
     use serde::{Serialize, Deserialize};
     use base64;
@@ -381,9 +382,92 @@ mod tests {
         assert_eq!(account2.lamports, 200_000);
     }
     
-    // Test for extensions could be added here, but they would likely need
-    // more complex setup with solana-program-test which is better suited
-    // for integration tests
+    #[test]
+    fn test_account_builder_default_owner() {
+        // Create an account without specifying an owner
+        let account = AccountBuilder::new()
+            .balance(100_000)
+            .build();
+            
+        // Verify that the owner defaults to the system program
+        assert_eq!(account.owner, system_program::id());
+    }
+    
+    #[test]
+    fn test_account_builder_default_balance() {
+        // Create test data
+        let test_data = TestBorshData { 
+            value: 42, 
+            name: "Test Account".to_string() 
+        };
+        
+        // Create an account without specifying a balance
+        let account = AccountBuilder::new()
+            .owner(Pubkey::new_unique())
+            .data(test_data.clone())
+            .unwrap()
+            .build();
+            
+        // Calculate the expected rent-exempt balance
+        let rent = Rent::default();
+        let data_size = borsh::to_vec(&test_data).unwrap().len();
+        let expected_balance = rent.minimum_balance(data_size);
+            
+        // Verify that the balance defaults to rent-exempt
+        assert_eq!(account.lamports, expected_balance);
+    }
+    
+    #[test]
+    fn test_account_builder_all_defaults() {
+        // Create test data
+        let test_data = TestBorshData { 
+            value: 42, 
+            name: "Test Account".to_string() 
+        };
+        
+        // Create an account with only data specified
+        let account = AccountBuilder::new()
+            .data(test_data.clone())
+            .unwrap()
+            .build();
+            
+        // Verify defaults
+        assert_eq!(account.owner, system_program::id());
+        assert_eq!(account.executable, false);
+        assert_eq!(account.rent_epoch, 0);
+        
+        // Calculate the expected rent-exempt balance
+        let rent = Rent::default();
+        let data_size = borsh::to_vec(&test_data).unwrap().len();
+        let expected_balance = rent.minimum_balance(data_size);
+            
+        // Verify that the balance defaults to rent-exempt
+        assert_eq!(account.lamports, expected_balance);
+    }
+    
+    #[test]
+    fn test_account_builder_explicit_overrides_defaults() {
+        // Create test data
+        let test_data = TestBorshData { 
+            value: 42, 
+            name: "Test Account".to_string() 
+        };
+        
+        let custom_owner = Pubkey::new_unique();
+        let custom_balance = 999_999;
+        
+        // Create an account with explicit values
+        let account = AccountBuilder::new()
+            .owner(custom_owner)
+            .balance(custom_balance)
+            .data(test_data.clone())
+            .unwrap()
+            .build();
+            
+        // Verify explicit values are used instead of defaults
+        assert_eq!(account.owner, custom_owner);
+        assert_eq!(account.lamports, custom_balance);
+    }
 }
 
 /// Creates an account with the given pubkey and properties.

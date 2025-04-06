@@ -1,7 +1,7 @@
 [package]
 name = "solana-accountgen"
 version = "0.1.1"
-edition = "2021"
+edition = "2024"
 description = "A utility crate for generating mock Solana accounts in tests"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/dvrvsimi/solana-accountgen"

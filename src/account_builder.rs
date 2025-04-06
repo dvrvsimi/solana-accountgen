@@ -1,6 +1,6 @@
 use borsh::BorshSerialize;
-use solana_program::pubkey::Pubkey;
-use solana_sdk::account::Account;
+use solana_program::{pubkey::Pubkey, system_program};
+use solana_sdk::{account::Account, rent::Rent};
 use crate::error::AccountGenError;
 use base64;
 use serde::{Serialize, Deserialize};
@@ -9,10 +9,17 @@ use serde::{Serialize, Deserialize};
 ///
 /// This struct provides a fluent API for configuring and building
 /// Solana accounts with custom properties.
+///
+/// # Defaults
+///
+/// - **Owner**: System Program (`system_program::id()`) if not specified
+/// - **Balance**: Rent-exempt amount based on data size if not explicitly set
+/// - **Executable**: `false`
+/// - **Rent Epoch**: `0`
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct AccountBuilder {
     pubkey: Option<Pubkey>,
-    lamports: u64,
+    lamports: Option<u64>,
     owner: Option<Pubkey>,
     executable: bool,
     rent_epoch: u64,
@@ -44,7 +51,7 @@ impl AccountBuilder {
     ///     .balance(1_000_000);
     /// ```
     pub fn balance(mut self, lamports: u64) -> Self {
-        self.lamports = lamports;
+        self.lamports = Some(lamports);
         self
     }
 
@@ -197,13 +204,7 @@ impl AccountBuilder {
     ///
     /// Panics if the owner has not been set.
     pub fn build(self) -> Account {
-        Account {
-            lamports: self.lamports,
-            data: self.data,
-            owner: self.owner.expect("Account owner must be set"),
-            executable: self.executable,
-            rent_epoch: self.rent_epoch,
-        }
+        self.try_build().expect("Failed to build account")
     }
 
     /// Builds the account and returns it with its pubkey.
@@ -275,21 +276,40 @@ impl AccountBuilder {
 
     /// Attempts to build the account, returning an error if required fields are missing.
     ///
+    /// If no owner is specified, defaults to the System Program.
+    /// If no balance is specified, defaults to rent-exempt amount for the data size.
+    ///
     /// # Example
     ///
     /// ```
     /// use solana_accountgen::AccountBuilder;
+    /// use borsh::{BorshSerialize, BorshDeserialize};
     ///
-    /// let result = AccountBuilder::new()
-    ///     .balance(100_000_000)
-    ///     .try_build();
-    /// assert!(result.is_err()); // Error because owner is not set
+    /// #[derive(BorshSerialize, BorshDeserialize)]
+    /// struct MyData { value: u64 }
+    ///
+    /// // With defaults: owner = system program, balance = rent exempt
+    /// let account = AccountBuilder::new()
+    ///     .data(MyData { value: 42 })
+    ///     .unwrap()
+    ///     .try_build()
+    ///     .unwrap();
     /// ```
     pub fn try_build(self) -> Result<Account, AccountGenError> {
-        let owner = self.owner.ok_or(AccountGenError::MissingOwner)?;
+        // Default to system program if owner not specified
+        let owner = self.owner.unwrap_or_else(system_program::id);
+        
+        // Calculate rent-exempt balance if not specified
+        let lamports = match self.lamports {
+            Some(lamports) => lamports,
+            None => {
+                let rent = Rent::default();
+                rent.minimum_balance(self.data.len())
+            }
+        };
         
         Ok(Account {
-            lamports: self.lamports,
+            lamports,
             data: self.data,
             owner,
             executable: self.executable,
