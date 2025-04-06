@@ -190,13 +190,15 @@ mod tests {
     
     #[test]
     fn test_try_build_with_missing_owner() {
+        // Create an account without specifying an owner
         let result = AccountBuilder::new()
             .balance(100_000)
             .try_build();
             
-        assert!(result.is_err());
-        if let Err(err) = result {
-            assert!(matches!(err, AccountGenError::MissingOwner));
+        // Now it should succeed with the default system program owner
+        assert!(result.is_ok());
+        if let Ok(account) = result {
+            assert_eq!(account.owner, system_program::id());
         }
     }
     

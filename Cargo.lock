@@ -3924,7 +3924,7 @@ dependencies = [
 
 [[package]]
 name = "solana-accountgen"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "assert_cmd",
  "base64 0.13.1",
