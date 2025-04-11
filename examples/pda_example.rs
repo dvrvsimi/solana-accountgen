@@ -1,6 +1,6 @@
 use borsh::{BorshDeserialize, BorshSerialize};
 use solana_accountgen::AccountBuilder;
-use solana_program::pubkey::Pubkey;
+use solana_pubkey::Pubkey;
 
 #[derive(BorshSerialize, BorshDeserialize, Debug)]
 struct GameState {
@@ -44,4 +44,4 @@ fn main() {
     // Deserialize the data back
     let deserialized: GameState = GameState::try_from_slice(&account.data).unwrap();
     println!("Deserialized game state: {:?}", deserialized);
-} 
+}

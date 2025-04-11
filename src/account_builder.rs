@@ -1,9 +1,11 @@
-use borsh::BorshSerialize;
-use solana_program::{pubkey::Pubkey, system_program};
-use solana_sdk::{account::Account, rent::Rent};
 use crate::error::AccountGenError;
 use base64;
-use serde::{Serialize, Deserialize};
+use borsh::BorshSerialize;
+use serde::{Deserialize, Serialize};
+use solana_account::Account;
+use solana_pubkey::Pubkey;
+use solana_rent::Rent;
+use solana_sdk_ids::system_program;
 
 /// A builder for creating mock Solana accounts for testing purposes.
 ///
@@ -178,10 +180,12 @@ impl AccountBuilder {
     ///
     /// Returns an error if base64 decoding fails.
     pub fn data_base64(mut self, base64_data: &str) -> Result<Self, AccountGenError> {
-        self.data = base64::decode(base64_data)
-            .map_err(|e| AccountGenError::SerializationError(
-                std::io::Error::new(std::io::ErrorKind::InvalidData, e)
-            ))?;
+        self.data = base64::decode(base64_data).map_err(|e| {
+            AccountGenError::SerializationError(std::io::Error::new(
+                std::io::ErrorKind::InvalidData,
+                e,
+            ))
+        })?;
         Ok(self)
     }
 
@@ -264,13 +268,13 @@ impl AccountBuilder {
         data: impl BorshSerialize,
     ) -> Result<(Pubkey, u8, Account), AccountGenError> {
         let (pda, bump) = Pubkey::find_program_address(seeds, program_id);
-        
+
         let account = Self::new()
             .balance(balance)
             .owner(*program_id)
             .data(data)?
             .try_build()?;
-            
+
         Ok((pda, bump, account))
     }
 
@@ -298,7 +302,7 @@ impl AccountBuilder {
     pub fn try_build(self) -> Result<Account, AccountGenError> {
         // Default to system program if owner not specified
         let owner = self.owner.unwrap_or_else(system_program::id);
-        
+
         // Calculate rent-exempt balance if not specified
         let lamports = match self.lamports {
             Some(lamports) => lamports,
@@ -307,7 +311,7 @@ impl AccountBuilder {
                 rent.minimum_balance(self.data.len())
             }
         };
-        
+
         Ok(Account {
             lamports,
             data: self.data,
@@ -337,4 +341,4 @@ impl AccountBuilder {
         let account = self.try_build()?;
         Ok((pubkey, account))
     }
-} 
+}

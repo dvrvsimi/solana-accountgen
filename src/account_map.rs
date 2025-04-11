@@ -1,5 +1,5 @@
-use solana_program::pubkey::Pubkey;
-use solana_sdk::account::Account;
+use solana_account::Account;
+use solana_pubkey::Pubkey;
 use std::collections::HashMap;
 
 /// A collection of accounts indexed by their pubkeys.
@@ -148,11 +148,13 @@ impl AccountMap {
     where
         F: FnMut(&Pubkey, &Account) -> bool,
     {
-        let accounts = self.accounts.iter()
+        let accounts = self
+            .accounts
+            .iter()
             .filter(|(pubkey, account)| predicate(pubkey, account))
             .map(|(pubkey, account)| (*pubkey, account.clone()))
             .collect::<HashMap<_, _>>();
-        
+
         Self { accounts }
     }
 }
@@ -174,4 +176,4 @@ impl FromIterator<(Pubkey, Account)> for AccountMap {
         }
         map
     }
-} 
+}

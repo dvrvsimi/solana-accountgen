@@ -4,8 +4,9 @@
 //! for testing purposes.
 
 use crate::{AccountBuilder, AccountGenError};
-use borsh::{BorshSerialize, BorshDeserialize};
-use solana_program::pubkey::Pubkey;
+use borsh::{BorshDeserialize, BorshSerialize};
+use solana_account::Account;
+use solana_pubkey::Pubkey;
 
 #[derive(BorshSerialize, BorshDeserialize)]
 struct TokenAccount {
@@ -30,7 +31,7 @@ struct TokenAccount {
 /// let mint = Pubkey::new_unique();
 /// let owner = Pubkey::new_unique();
 /// let token_program_id = Pubkey::new_unique();
-/// 
+///
 /// let account = create_token_account(
 ///     &mint,
 ///     &owner,
@@ -43,7 +44,7 @@ pub fn create_token_account(
     owner: &Pubkey,
     amount: u64,
     token_program_id: &Pubkey,
-) -> Result<solana_sdk::account::Account, AccountGenError> {
+) -> Result<Account, AccountGenError> {
     let token_account = TokenAccount {
         mint: *mint,
         owner: *owner,
@@ -54,10 +55,10 @@ pub fn create_token_account(
         delegated_amount: 0,
         close_authority: None,
     };
-    
+
     AccountBuilder::new()
         .balance(1_000_000) // Rent exempt amount
         .owner(*token_program_id)
         .data(token_account)?
         .try_build()
-} 
+}

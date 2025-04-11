@@ -1,8 +1,8 @@
 use borsh::{BorshDeserialize, BorshSerialize};
 use solana_accountgen::AccountBuilder;
-use solana_program::pubkey::Pubkey;
 use solana_program_test::ProgramTest;
-use solana_sdk::signature::Signer;
+use solana_pubkey::Pubkey;
+use solana_signer::Signer;
 
 #[derive(BorshSerialize, BorshDeserialize, Debug)]
 struct CounterData {
@@ -13,11 +13,7 @@ struct CounterData {
 async fn main() {
     // Create a program test environment
     let program_id = Pubkey::new_unique();
-    let mut program_test = ProgramTest::new(
-        "my_program",
-        program_id,
-        None,
-    );
+    let mut program_test = ProgramTest::new("my_program", program_id, None);
 
     // Create an account using AccountBuilder with pubkey
     let account_pubkey = Pubkey::new_unique();
@@ -35,4 +31,4 @@ async fn main() {
 
     // Now you can use the test environment to test your program
     println!("Test environment started with payer: {}", payer.pubkey());
-} 
+}

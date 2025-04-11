@@ -5,7 +5,7 @@
 
 use crate::error::AccountGenError;
 use borsh::{BorshDeserialize, BorshSerialize};
-use solana_sdk::account::Account;
+use solana_account::Account;
 
 /// Deserializes account data using Borsh.
 ///
@@ -60,4 +60,4 @@ pub fn deserialize_account_data<T: BorshDeserialize>(
 /// ```
 pub fn serialize_data<T: BorshSerialize>(data: &T) -> Result<Vec<u8>, AccountGenError> {
     borsh::to_vec(data).map_err(|e| AccountGenError::SerializationError(e))
-} 
+}
