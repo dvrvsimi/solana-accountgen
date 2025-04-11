@@ -26,12 +26,10 @@
 //! - Extracting account data from Anchor accounts for verification
 
 use crate::{AccountBuilder, AccountGenError};
-use solana_program::pubkey::Pubkey;
-use solana_sdk::{
-    account::Account,
-    instruction::{AccountMeta, Instruction},
-};
 use sha2::{Digest, Sha256};
+use solana_account::Account;
+use solana_instruction::{AccountMeta, Instruction};
+use solana_pubkey::Pubkey;
 
 /// Creates an account with Anchor's discriminator prefix.
 ///
@@ -57,12 +55,12 @@ pub fn create_anchor_account<T: borsh::BorshSerialize>(
 ) -> Result<Account, AccountGenError> {
     // Calculate Anchor's discriminator
     let discriminator = get_account_discriminator(account_type);
-    
+
     // Serialize the data
     let mut account_data = Vec::with_capacity(8 + borsh::to_vec(&data)?.len());
     account_data.extend_from_slice(&discriminator);
     account_data.extend_from_slice(&borsh::to_vec(&data)?);
-    
+
     // Create the account
     AccountBuilder::new()
         .balance(lamports)
@@ -119,12 +117,12 @@ pub fn create_anchor_instruction<T: borsh::BorshSerialize>(
 ) -> Result<Instruction, AccountGenError> {
     // Calculate Anchor's method discriminator
     let discriminator = get_method_discriminator(method_name);
-    
+
     // Serialize the data
     let mut instruction_data = Vec::with_capacity(8 + borsh::to_vec(&data)?.len());
     instruction_data.extend_from_slice(&discriminator);
     instruction_data.extend_from_slice(&borsh::to_vec(&data)?);
-    
+
     Ok(Instruction {
         program_id,
         accounts,
@@ -161,19 +159,19 @@ pub fn deserialize_anchor_account<T: borsh::BorshDeserialize>(
     account: &Account,
 ) -> Result<T, AccountGenError> {
     if account.data.len() <= 8 {
-        return Err(AccountGenError::DeserializationError(
-            std::io::Error::new(
-                std::io::ErrorKind::InvalidData,
-                "Account data too short for Anchor account",
-            )
-        ));
+        return Err(AccountGenError::DeserializationError(std::io::Error::new(
+            std::io::ErrorKind::InvalidData,
+            "Account data too short for Anchor account",
+        )));
     }
-    
+
     // Skip the 8-byte discriminator
-    borsh::from_slice(&account.data[8..])
-        .map_err(|e| AccountGenError::DeserializationError(
-            std::io::Error::new(std::io::ErrorKind::InvalidData, e)
+    borsh::from_slice(&account.data[8..]).map_err(|e| {
+        AccountGenError::DeserializationError(std::io::Error::new(
+            std::io::ErrorKind::InvalidData,
+            e,
         ))
+    })
 }
 
 /// Creates a PDA account with Anchor's discriminator prefix.
@@ -230,22 +228,22 @@ pub fn create_anchor_pda<T: borsh::BorshSerialize>(
 ) -> Result<(Pubkey, u8, Account), AccountGenError> {
     // Find the PDA
     let (pda, bump) = Pubkey::find_program_address(seeds, &program_id);
-    
+
     // Calculate Anchor's discriminator
     let discriminator = get_account_discriminator(account_type);
-    
+
     // Serialize the data
     let mut account_data = Vec::with_capacity(8 + borsh::to_vec(&data)?.len());
     account_data.extend_from_slice(&discriminator);
     account_data.extend_from_slice(&borsh::to_vec(&data)?);
-    
+
     // Create the account
     let account = AccountBuilder::new()
         .balance(lamports)
         .owner(program_id)
         .data_raw(account_data)
         .try_build()?;
-    
+
     Ok((pda, bump, account))
 }
 
@@ -283,4 +281,4 @@ pub fn get_method_discriminator(method_name: &str) -> [u8; 8] {
     hasher.update(format!("global:{}", method_name).as_bytes());
     let hash = hasher.finalize();
     hash[..8].try_into().unwrap()
-} 
+}
