@@ -501,7 +501,7 @@ pub fn create_account(
 ///
 /// ```
 /// use solana_accountgen::{create_accounts, AccountBuilder};
-/// use solana_program::pubkey::Pubkey;
+/// use solana_pubkey::Pubkey;
 ///
 /// let program_id = Pubkey::new_unique();
 /// let accounts = create_accounts(vec![
