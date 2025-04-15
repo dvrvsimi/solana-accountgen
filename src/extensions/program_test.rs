@@ -8,10 +8,10 @@
 //! that work with solana-accountgen's `AccountBuilder` and `AccountMap`,
 //! as well as Anchor-specific account creation.
 
-use crate::{AccountBuilder, AccountGenError, AccountMap};
-use solana_program::pubkey::Pubkey;
-use solana_program_test::ProgramTest;
 use crate::extensions::anchor;
+use crate::{AccountBuilder, AccountGenError, AccountMap};
+use solana_program_test::ProgramTest;
+use solana_pubkey::Pubkey;
 
 /// Extension trait for ProgramTest to add accounts using AccountBuilder.
 ///
@@ -24,7 +24,7 @@ pub trait ProgramTestExt {
     ///
     /// ```
     /// use solana_accountgen::{AccountBuilder, extensions::program_test::ProgramTestExt};
-    /// use solana_program::pubkey::Pubkey;
+    /// use solana_pubkey::Pubkey;
     /// use solana_program_test::ProgramTest;
     ///
     /// let program_id = Pubkey::new_unique();
@@ -50,7 +50,7 @@ pub trait ProgramTestExt {
     ///
     /// ```
     /// use solana_accountgen::{AccountBuilder, AccountMap, extensions::program_test::ProgramTestExt};
-    /// use solana_program::pubkey::Pubkey;
+    /// use solana_pubkey::Pubkey;
     /// use solana_program_test::ProgramTest;
     ///
     /// let program_id = Pubkey::new_unique();
@@ -66,10 +66,7 @@ pub trait ProgramTestExt {
     /// let mut program_test = ProgramTest::default();
     /// program_test.add_account_map(account_map);
     /// ```
-    fn add_account_map(
-        &mut self,
-        account_map: AccountMap,
-    ) -> &mut Self;
+    fn add_account_map(&mut self, account_map: AccountMap) -> &mut Self;
 
     /// Adds an Anchor account with discriminator to the test environment.
     ///
@@ -77,7 +74,7 @@ pub trait ProgramTestExt {
     ///
     /// ```
     /// use solana_accountgen::extensions::program_test::ProgramTestExt;
-    /// use solana_program::pubkey::Pubkey;
+    /// use solana_pubkey::Pubkey;
     /// use solana_program_test::ProgramTest;
     /// use borsh::{BorshSerialize, BorshDeserialize};
     ///
@@ -118,7 +115,7 @@ pub trait ProgramTestExt {
     ///
     /// ```
     /// use solana_accountgen::extensions::program_test::ProgramTestExt;
-    /// use solana_program::pubkey::Pubkey;
+    /// use solana_pubkey::Pubkey;
     /// use solana_program_test::ProgramTest;
     /// use borsh::{BorshSerialize, BorshDeserialize};
     ///
@@ -167,10 +164,7 @@ impl ProgramTestExt for ProgramTest {
         Ok(self)
     }
 
-    fn add_account_map(
-        &mut self,
-        account_map: AccountMap,
-    ) -> &mut Self {
+    fn add_account_map(&mut self, account_map: AccountMap) -> &mut Self {
         for (pubkey, account) in account_map {
             self.add_account(pubkey, account);
         }
@@ -185,12 +179,7 @@ impl ProgramTestExt for ProgramTest {
         data: T,
         lamports: u64,
     ) -> Result<&mut Self, AccountGenError> {
-        let account = anchor::create_anchor_account(
-            account_type,
-            program_id,
-            data,
-            lamports,
-        )?;
+        let account = anchor::create_anchor_account(account_type, program_id, data, lamports)?;
         self.add_account(pubkey, account);
         Ok(self)
     }
@@ -203,13 +192,8 @@ impl ProgramTestExt for ProgramTest {
         data: T,
         lamports: u64,
     ) -> Result<(Pubkey, u8, &mut Self), AccountGenError> {
-        let (pda, bump, account) = anchor::create_anchor_pda(
-            account_type,
-            program_id,
-            seeds,
-            data,
-            lamports,
-        )?;
+        let (pda, bump, account) =
+            anchor::create_anchor_pda(account_type, program_id, seeds, data, lamports)?;
         self.add_account(pda, account);
         Ok((pda, bump, self))
     }

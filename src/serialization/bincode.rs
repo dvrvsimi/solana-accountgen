@@ -5,7 +5,7 @@
 
 use crate::error::AccountGenError;
 use serde::{Deserialize, Serialize};
-use solana_sdk::account::Account;
+use solana_account::Account;
 use std::io;
 
 /// Deserializes account data using JSON.
@@ -15,8 +15,8 @@ use std::io;
 /// ```
 /// use solana_accountgen::serialization::bincode::deserialize_account_data;
 /// use serde::{Serialize, Deserialize};
-/// use solana_sdk::account::Account;
-/// use solana_program::pubkey::Pubkey;
+/// use solana_account::Account;
+/// use solana_pubkey::Pubkey;
 ///
 /// #[derive(Serialize, Deserialize)]
 /// struct MyData {
@@ -40,8 +40,9 @@ use std::io;
 pub fn deserialize_account_data<T: for<'de> Deserialize<'de>>(
     account: &Account,
 ) -> Result<T, AccountGenError> {
-    serde_json::from_slice(&account.data)
-        .map_err(|e| AccountGenError::DeserializationError(io::Error::new(io::ErrorKind::InvalidData, e)))
+    serde_json::from_slice(&account.data).map_err(|e| {
+        AccountGenError::DeserializationError(io::Error::new(io::ErrorKind::InvalidData, e))
+    })
 }
 
 /// Serializes data using JSON.
@@ -61,6 +62,7 @@ pub fn deserialize_account_data<T: for<'de> Deserialize<'de>>(
 /// let serialized = serialize_data(&my_data).unwrap();
 /// ```
 pub fn serialize_data<T: Serialize>(data: &T) -> Result<Vec<u8>, AccountGenError> {
-    serde_json::to_vec(data)
-        .map_err(|e| AccountGenError::SerializationError(io::Error::new(io::ErrorKind::InvalidData, e)))
-} 
+    serde_json::to_vec(data).map_err(|e| {
+        AccountGenError::SerializationError(io::Error::new(io::ErrorKind::InvalidData, e))
+    })
+}

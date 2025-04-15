@@ -16,7 +16,8 @@ use solana_sdk::{
 ///
 /// ```
 /// use solana_accountgen::extensions::sysvars::create_sysvar_account;
-/// use solana_program::sysvar::{clock::Clock, rent::Rent};
+/// use solana_rent::Rent;
+/// use solana_clock::Clock;
 ///
 /// let clock = Clock::default();
 /// let clock_account = create_sysvar_account(&clock);

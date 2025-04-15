@@ -1,7 +1,6 @@
 use borsh::{BorshDeserialize, BorshSerialize};
 use solana_accountgen::AccountBuilder;
-use solana_program::pubkey::Pubkey;
-
+use solana_pubkey::Pubkey;
 #[derive(BorshSerialize, BorshDeserialize, Debug)]
 struct MyData {
     value: u64,
@@ -34,4 +33,4 @@ fn main() {
     // Deserialize the data back
     let deserialized: MyData = MyData::try_from_slice(&account.data).unwrap();
     println!("Deserialized data: {:?}", deserialized);
-} 
+}

@@ -52,7 +52,7 @@ pub fn read_file<P: AsRef<Path>>(path: P) -> Result<Vec<u8>, std::io::Error> {
 ///
 /// ```
 /// use solana_accountgen::extensions::program_loader::create_program_account_from_file;
-/// use solana_program::pubkey::Pubkey;
+/// use solana_pubkey::Pubkey;
 ///
 /// let program_id = Pubkey::new_unique();
 /// let program_account = create_program_account_from_file(
