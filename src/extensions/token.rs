@@ -26,7 +26,7 @@ struct TokenAccount {
 ///
 /// ```
 /// use solana_accountgen::extensions::token::create_token_account;
-/// use solana_program::pubkey::Pubkey;
+/// use solana_pubkey::Pubkey;
 ///
 /// let mint = Pubkey::new_unique();
 /// let owner = Pubkey::new_unique();

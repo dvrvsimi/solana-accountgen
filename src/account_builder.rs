@@ -63,7 +63,7 @@ impl AccountBuilder {
     ///
     /// ```
     /// use solana_accountgen::AccountBuilder;
-    /// use solana_program::pubkey::Pubkey;
+    /// use solana_pubkey::Pubkey;
     ///
     /// let program_id = Pubkey::new_unique();
     /// let builder = AccountBuilder::new()
@@ -152,7 +152,7 @@ impl AccountBuilder {
     ///
     /// ```
     /// use solana_accountgen::AccountBuilder;
-    /// use solana_program::pubkey::Pubkey;
+    /// use solana_pubkey::Pubkey;
     ///
     /// let pubkey = Pubkey::new_unique();
     /// let builder = AccountBuilder::new()
@@ -195,7 +195,7 @@ impl AccountBuilder {
     ///
     /// ```
     /// use solana_accountgen::AccountBuilder;
-    /// use solana_program::pubkey::Pubkey;
+    /// use solana_pubkey::Pubkey;
     ///
     /// let program_id = Pubkey::new_unique();
     /// let account = AccountBuilder::new()
@@ -217,7 +217,7 @@ impl AccountBuilder {
     ///
     /// ```
     /// use solana_accountgen::AccountBuilder;
-    /// use solana_program::pubkey::Pubkey;
+    /// use solana_pubkey::Pubkey;
     ///
     /// let pubkey = Pubkey::new_unique();
     /// let program_id = Pubkey::new_unique();
@@ -243,7 +243,7 @@ impl AccountBuilder {
     ///
     /// ```
     /// use solana_accountgen::AccountBuilder;
-    /// use solana_program::pubkey::Pubkey;
+    /// use solana_pubkey::Pubkey;
     ///
     /// let pubkey = Pubkey::new_unique();
     /// let program_id = Pubkey::new_unique();
@@ -327,7 +327,7 @@ impl AccountBuilder {
     ///
     /// ```
     /// use solana_accountgen::AccountBuilder;
-    /// use solana_program::pubkey::Pubkey;
+    /// use solana_pubkey::Pubkey;
     ///
     /// let pubkey = Pubkey::new_unique();
     /// let program_id = Pubkey::new_unique();

@@ -86,8 +86,8 @@ pub fn create_anchor_account<T: borsh::BorshSerialize>(
 ///
 /// ```
 /// use solana_accountgen::extensions::anchor::create_anchor_instruction;
-/// use solana_program::pubkey::Pubkey;
-/// use solana_sdk::instruction::AccountMeta;
+/// use solana_pubkey::Pubkey;
+/// use solana_instruction::AccountMeta;
 /// use borsh::{BorshSerialize, BorshDeserialize};
 ///
 /// #[derive(BorshSerialize, BorshDeserialize)]
@@ -143,7 +143,7 @@ pub fn create_anchor_instruction<T: borsh::BorshSerialize>(
 ///
 /// ```
 /// use solana_accountgen::extensions::anchor::deserialize_anchor_account;
-/// use solana_program::pubkey::Pubkey;
+/// use solana_pubkey::Pubkey;
 /// use borsh::{BorshSerialize, BorshDeserialize};
 ///
 /// #[derive(BorshSerialize, BorshDeserialize, Debug, PartialEq)]
@@ -192,7 +192,7 @@ pub fn deserialize_anchor_account<T: borsh::BorshDeserialize>(
 ///
 /// ```
 /// use solana_accountgen::extensions::anchor::create_anchor_pda;
-/// use solana_program::pubkey::Pubkey;
+/// use solana_pubkey::Pubkey;
 /// use borsh::{BorshSerialize, BorshDeserialize};
 ///
 /// #[derive(BorshSerialize, BorshDeserialize)]

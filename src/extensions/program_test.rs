@@ -24,7 +24,7 @@ pub trait ProgramTestExt {
     ///
     /// ```
     /// use solana_accountgen::{AccountBuilder, extensions::program_test::ProgramTestExt};
-    /// use solana_program::pubkey::Pubkey;
+    /// use solana_pubkey::Pubkey;
     /// use solana_program_test::ProgramTest;
     ///
     /// let program_id = Pubkey::new_unique();
@@ -50,7 +50,7 @@ pub trait ProgramTestExt {
     ///
     /// ```
     /// use solana_accountgen::{AccountBuilder, AccountMap, extensions::program_test::ProgramTestExt};
-    /// use solana_program::pubkey::Pubkey;
+    /// use solana_pubkey::Pubkey;
     /// use solana_program_test::ProgramTest;
     ///
     /// let program_id = Pubkey::new_unique();
@@ -74,7 +74,7 @@ pub trait ProgramTestExt {
     ///
     /// ```
     /// use solana_accountgen::extensions::program_test::ProgramTestExt;
-    /// use solana_program::pubkey::Pubkey;
+    /// use solana_pubkey::Pubkey;
     /// use solana_program_test::ProgramTest;
     /// use borsh::{BorshSerialize, BorshDeserialize};
     ///
@@ -115,7 +115,7 @@ pub trait ProgramTestExt {
     ///
     /// ```
     /// use solana_accountgen::extensions::program_test::ProgramTestExt;
-    /// use solana_program::pubkey::Pubkey;
+    /// use solana_pubkey::Pubkey;
     /// use solana_program_test::ProgramTest;
     /// use borsh::{BorshSerialize, BorshDeserialize};
     ///

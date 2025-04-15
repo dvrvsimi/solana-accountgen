@@ -15,8 +15,8 @@ use std::io;
 /// ```
 /// use solana_accountgen::serialization::bincode::deserialize_account_data;
 /// use serde::{Serialize, Deserialize};
-/// use solana_sdk::account::Account;
-/// use solana_program::pubkey::Pubkey;
+/// use solana_account::Account;
+/// use solana_pubkey::Pubkey;
 ///
 /// #[derive(Serialize, Deserialize)]
 /// struct MyData {

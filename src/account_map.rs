@@ -71,8 +71,8 @@ impl AccountMap {
     ///
     /// ```
     /// use solana_accountgen::AccountMap;
-    /// use solana_program::pubkey::Pubkey;
-    /// use solana_sdk::account::Account;
+    /// use solana_pubkey::Pubkey;
+    /// use solana_account::Account;
     ///
     /// let accounts = vec![
     ///     (Pubkey::new_unique(), Account::default()),
@@ -102,8 +102,8 @@ impl AccountMap {
     ///
     /// ```
     /// use solana_accountgen::AccountMap;
-    /// use solana_program::pubkey::Pubkey;
-    /// use solana_sdk::account::Account;
+    /// use solana_pubkey::Pubkey;
+    /// use solana_account::Account;
     ///
     /// let mut map1 = AccountMap::new();
     /// let pubkey = Pubkey::new_unique();
@@ -127,8 +127,8 @@ impl AccountMap {
     ///
     /// ```
     /// use solana_accountgen::AccountMap;
-    /// use solana_program::pubkey::Pubkey;
-    /// use solana_sdk::account::Account;
+    /// use solana_pubkey::Pubkey;
+    /// use solana_account::Account;
     ///
     /// let mut map = AccountMap::new();
     /// let pubkey1 = Pubkey::new_unique();

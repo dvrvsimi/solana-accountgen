@@ -14,7 +14,7 @@
 //!
 //! ```rust,no_run
 //! use solana_accountgen::AccountBuilder;
-//! use solana_program::pubkey::Pubkey;
+//! use solana_pubkey::Pubkey;
 //! use borsh::{BorshSerialize, BorshDeserialize};
 //!
 //! #[derive(BorshSerialize, BorshDeserialize)]
@@ -35,9 +35,9 @@
 //!
 //! ```rust,no_run
 //! use solana_accountgen::extensions::anchor::{create_anchor_account, create_anchor_instruction};
-//! use solana_program::pubkey::Pubkey;
+//! use solana_pubkey::Pubkey;
 //! use borsh::{BorshSerialize, BorshDeserialize};
-//! use solana_sdk::instruction::AccountMeta;
+//! use solana_instruction::AccountMeta;
 //!
 //! #[derive(BorshSerialize, BorshDeserialize)]
 //! struct GameState {
@@ -477,7 +477,7 @@ mod tests {
 ///
 /// ```
 /// use solana_accountgen::{create_account, AccountBuilder};
-/// use solana_program::pubkey::Pubkey;
+/// use solana_pubkey::Pubkey;
 ///
 /// let pubkey = Pubkey::new_unique();
 /// let program_id = Pubkey::new_unique();
